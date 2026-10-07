@@ -269,7 +269,7 @@ Generated: {pd.Timestamp.now()}
 ================================================================================
 """
         
-        with open(save_path, 'w') as f:
+        with open(save_path, 'w', encoding="utf-8") as f:
             f.write(report)
         
         print(f"✓ Analysis report saved to {save_path}")

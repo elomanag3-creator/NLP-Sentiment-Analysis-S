@@ -5,7 +5,31 @@ Complete NLP Sentiment Analysis Pipeline
 
 import sys
 import os
+import sys, io, os
+from datetime import datetime
 
+
+if sys.platform == "win32":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+
+
+os.makedirs("results", exist_ok=True)
+_log_file = open("results/run_log.txt", "w", encoding="utf-8")
+
+class Tee:
+    def __init__(self, *streams):
+        self.streams = streams
+    def write(self, data):
+        for s in self.streams:
+            s.write(data)
+            s.flush()
+    def flush(self):
+        for s in self.streams:
+            s.flush()
+
+sys.stdout = Tee(sys.stdout, _log_file)
+sys.stderr = Tee(sys.stderr, _log_file)
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 

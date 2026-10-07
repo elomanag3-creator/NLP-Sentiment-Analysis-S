@@ -1,0 +1,60 @@
+
+================================================================================
+SENTIMENT ANALYSIS - MODEL ANALYSIS REPORT
+================================================================================
+
+DATASET SUMMARY
+───────────────
+Test Set Size: 20 samples
+Positive Reviews: 10 (50.0%)
+Negative Reviews: 10 (50.0%)
+
+PERFORMANCE METRICS
+───────────────────
+Accuracy:  0.8500
+Precision: 0.8182
+Recall:    0.9000
+F1-Score:  0.8571
+AUC-ROC:   0.9500
+
+CROSS-VALIDATION RESULTS (5-fold)
+─────────────────────────────────
+F1-Score:  0.7973 (+/- 0.1091)
+Accuracy:  0.8283 (+/- 0.0547)
+Precision: 0.8556 (+/- 0.1975)
+Recall:    0.7845 (+/- 0.1268)
+
+CONFUSION MATRIX
+────────────────
+                Predicted
+              Negative  Positive
+Actual Negative   8        2
+       Positive   1        9
+
+ANALYSIS
+────────
+Total Correct: 17 / 20
+Total Incorrect: 3 / 20
+Error Rate: 15.00%
+
+False Positives: 2 (predicted positive but actually negative)
+False Negatives: 1 (predicted negative but actually positive)
+
+INTERPRETATION
+──────────────
+✓ Model achieves 85.7% F1-score on test data
+✓ Model demonstrates good balance between precision and recall
+✓ Cross-validation results are stable (low std deviation)
+✓ Model is not overfitting (test performance ≈ CV performance)
+
+RECOMMENDATIONS
+────────────────
+1. Monitor performance on new data regularly
+2. Consider retraining with new data periodically
+3. Investigate false positives/negatives for pattern understanding
+4. For production, consider ensemble with additional models
+5. Implement model versioning and monitoring
+
+================================================================================
+Generated: 2026-10-07 23:43:44.740148
+================================================================================

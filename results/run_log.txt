@@ -1,0 +1,320 @@
+
+======================================================================
+                    NLP SENTIMENT ANALYSIS PROJECT                    
+======================================================================
+Predicting product review sentiment using ML ensemble
+
+
+======================================================================
+                      STEP 1: DATA PREPROCESSING                      
+======================================================================
+Loading data from data/reviews.csv...
+✓ Loaded 96 reviews
+
+======================================================================
+DATA ANALYSIS
+======================================================================
+Total reviews: 96
+Columns: ['review_text', 'sentiment']
+
+Class Distribution:
+  POSITIVE: 48 reviews (50.0%)
+  NEGATIVE: 48 reviews (50.0%)
+
+Text Statistics:
+  Average review length: 44 characters
+  Average word count: 6.1 words
+  Min/Max length: 32/75 chars
+
+Sample Reviews:
+
+  POSITIVE ✓: This product exceeded my expectations. Excellent quality and fast delivery!...
+
+  NEGATIVE ✗: Waste of money. Broke after one week of use....
+
+  POSITIVE ✓: Amazing! Best purchase I've made this year. Highly recommend to everyone....
+
+======================================================================
+TEXT PREPROCESSING
+======================================================================
+Cleaning text data...
+✓ Text cleaning complete
+
+Sample (before → after):
+  Before: This product exceeded my expectations. Excellent quality and fast deli...
+  After:  product exceeded expectations excellent quality fast delivery...
+
+======================================================================
+FEATURE ENGINEERING (TF-IDF)
+======================================================================
+Vectorizing with 100 features (unigrams + bigrams)...
+✓ Feature matrix shape: (96, 100)
+  (96 documents, 100 features)
+
+Sample features (words/bigrams): amazing, amazing best, amazing quality, apart, arrival, arrived, awful, awful product, awful quality, bad, best, best product, broken, cheap, complete
+
+======================================================================
+TRAIN-TEST SPLIT
+======================================================================
+Training set: 76 samples (80%)
+Test set: 20 samples (20%)
+
+======================================================================
+SAVING PROCESSED DATA
+======================================================================
+✓ Saved X_train, X_test, y_train, y_test, preprocessor
+  Location: data/
+
+======================================================================
+                        STEP 2: MODEL TRAINING                        
+======================================================================
+======================================================================
+SENTIMENT ANALYSIS MODEL TRAINING
+======================================================================
+
+Loading preprocessed data...
+✓ Loaded training set: (76, 100)
+✓ Loaded test set: (20, 100)
+
+Class Distribution (Training):
+  Positive: 38 (50.0%)
+  Negative: 38 (50.0%)
+Building ensemble model...
+✓ Ensemble model created:
+  - Logistic Regression
+  - XGBoost
+  - Voting strategy: soft (probability)
+
+Training ensemble...
+✓ Training complete!
+
+Performing 5-fold cross-validation...
+
+Cross-Validation Results (5-fold):
+  F1-Score:  0.7973 (+/- 0.1091)
+  Accuracy:  0.8283 (+/- 0.0547)
+  Precision: 0.8556 (+/- 0.1975)
+  Recall:    0.7845 (+/- 0.1268)
+
+======================================================================
+TEST SET EVALUATION
+======================================================================
+
+Performance Metrics:
+  Accuracy:  0.8500 (85.00%)
+  Precision: 0.8182
+  Recall:    0.9000
+  F1-Score:  0.8571
+  AUC-ROC:   0.9500
+
+Confusion Matrix:
+  True Negatives:  8
+  False Positives: 2
+  False Negatives: 1
+  True Positives:  9
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    Negative     0.8889    0.8000    0.8421        10
+    Positive     0.8182    0.9000    0.8571        10
+
+    accuracy                         0.8500        20
+   macro avg     0.8535    0.8500    0.8496        20
+weighted avg     0.8535    0.8500    0.8496        20
+
+
+✓ Model saved to models\sentiment_model.pkl
+
+======================================================================
+TRAINING COMPLETE
+======================================================================
+
+✓ Model saved to models/sentiment_model.pkl
+✓ Best F1-Score: 0.8571
+
+======================================================================
+                    STEP 3: PREDICTION & INFERENCE                    
+======================================================================
+Loading model from models/sentiment_model.pkl...
+Loading preprocessor from data/preprocessor.pkl...
+✓ Model and preprocessor loaded successfully!
+======================================================================
+SENTIMENT PREDICTION DEMO
+======================================================================
+Loading model from models/sentiment_model.pkl...
+Loading preprocessor from data/preprocessor.pkl...
+✓ Model and preprocessor loaded successfully!
+
+======================================================================
+SINGLE REVIEW PREDICTIONS
+======================================================================
+
+[1] Review: 'This product is absolutely fantastic! Best quality ever!'
+    Sentiment: Positive ✓
+    Confidence: 60.18%
+    Probabilities:
+      - Negative: 0.3982
+      - Positive: 0.6018
+
+[2] Review: 'Terrible quality, completely broken, worst purchase ever.'
+    Sentiment: Negative ✗
+    Confidence: 80.32%
+    Probabilities:
+      - Negative: 0.8032
+      - Positive: 0.1968
+
+[3] Review: 'Great value for money, very satisfied with this purchase.'
+    Sentiment: Positive ✓
+    Confidence: 69.13%
+    Probabilities:
+      - Negative: 0.3087
+      - Positive: 0.6913
+
+[4] Review: 'Horrible and disappointing, do not recommend at all.'
+    Sentiment: Negative ✗
+    Confidence: 65.30%
+    Probabilities:
+      - Negative: 0.6530
+      - Positive: 0.3470
+
+[5] Review: 'Amazing product! Exceeded all my expectations greatly.'
+    Sentiment: Positive ✓
+    Confidence: 74.34%
+    Probabilities:
+      - Negative: 0.2566
+      - Positive: 0.7434
+
+======================================================================
+BATCH PREDICTION
+======================================================================
+
+Predicting sentiment for 10 reviews...
+
+Results Summary:
+  Total reviews: 10
+  Positive: 6 (60.0%)
+  Negative: 4 (40.0%)
+  Average confidence: 70.36%
+
+Detailed Results:
+                                               review  sentiment confidence
+This product is absolutely fantastic! Best quality... Positive ✓     60.18%
+Terrible quality, completely broken, worst purchas... Negative ✗     80.32%
+Great value for money, very satisfied with this pu... Positive ✓     69.13%
+Horrible and disappointing, do not recommend at al... Negative ✗     65.30%
+Amazing product! Exceeded all my expectations grea... Positive ✓     74.34%
+    Poor quality materials, fell apart after one day. Negative ✗     87.24%
+        Excellent customer service and fast shipping! Positive ✓     75.68%
+        Defective and unusable, total waste of money. Negative ✗     68.94%
+     Love it! This is exactly what I was looking for. Positive ✓     65.18%
+       Awful product, regret buying this immediately. Positive ✓     57.26%
+
+======================================================================
+GENERATING VISUALIZATIONS & ANALYSIS
+======================================================================
+
+Creating visualizations...
+✓ Confusion matrix saved to results/confusion_matrix.png
+✓ ROC curve saved to results/roc_curve.png
+✓ Metrics comparison saved to results/metrics_comparison.png
+✓ CV results saved to results/cv_results.png
+✓ Prediction distribution saved to results/prediction_distribution.png
+✓ Feature importance saved to results/feature_importance.png
+
+Generating report...
+✓ Analysis report saved to results/analysis_report.txt
+
+================================================================================
+SENTIMENT ANALYSIS - MODEL ANALYSIS REPORT
+================================================================================
+
+DATASET SUMMARY
+───────────────
+Test Set Size: 20 samples
+Positive Reviews: 10 (50.0%)
+Negative Reviews: 10 (50.0%)
+
+PERFORMANCE METRICS
+───────────────────
+Accuracy:  0.8500
+Precision: 0.8182
+Recall:    0.9000
+F1-Score:  0.8571
+AUC-ROC:   0.9500
+
+CROSS-VALIDATION RESULTS (5-fold)
+─────────────────────────────────
+F1-Score:  0.7973 (+/- 0.1091)
+Accuracy:  0.8283 (+/- 0.0547)
+Precision: 0.8556 (+/- 0.1975)
+Recall:    0.7845 (+/- 0.1268)
+
+CONFUSION MATRIX
+────────────────
+                Predicted
+              Negative  Positive
+Actual Negative   8        2
+       Positive   1        9
+
+ANALYSIS
+────────
+Total Correct: 17 / 20
+Total Incorrect: 3 / 20
+Error Rate: 15.00%
+
+False Positives: 2 (predicted positive but actually negative)
+False Negatives: 1 (predicted negative but actually positive)
+
+INTERPRETATION
+──────────────
+✓ Model achieves 85.7% F1-score on test data
+✓ Model demonstrates good balance between precision and recall
+✓ Cross-validation results are stable (low std deviation)
+✓ Model is not overfitting (test performance ≈ CV performance)
+
+RECOMMENDATIONS
+────────────────
+1. Monitor performance on new data regularly
+2. Consider retraining with new data periodically
+3. Investigate false positives/negatives for pattern understanding
+4. For production, consider ensemble with additional models
+5. Implement model versioning and monitoring
+
+================================================================================
+Generated: 2026-10-07 23:43:44.740148
+================================================================================
+
+
+======================================================================
+✓ All visualizations and analysis complete!
+  Saved to results/ directory
+======================================================================
+
+======================================================================
+                          PIPELINE COMPLETE                           
+======================================================================
+
+✓ Project completed successfully!
+
+Results:
+  - Model F1-Score: 0.8571
+  - Accuracy: 0.8500
+  - Precision: 0.8182
+  - Recall: 0.9000
+  - AUC-ROC: 0.9500
+
+Files Generated:
+  - data/reviews.csv - Original dataset
+  - data/X_train.pkl, X_test.pkl - Feature matrices
+  - data/y_train.pkl, y_test.pkl - Labels
+  - data/preprocessor.pkl - Fitted preprocessor
+  - models/sentiment_model.pkl - Trained model
+
+Next Steps:
+  1. Review results in results/ directory
+  2. Use predict.py for inference on new data
+  3. Check CV_TEMPLATE.txt for CV description
+  
+For more info, see README.md
+
