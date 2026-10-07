@@ -1,238 +1,314 @@
-# NLP Sentiment Analysis - Product Reviews
+# NLP Sentiment Analysis — Product Reviews
 
-Complete end-to-end machine learning project for sentiment classification of product reviews.
+End-to-end machine learning project that classifies product reviews as **positive** or **negative**.
 
-**Ranking: Top 22% | F1-Score: 83% | Accuracy: 82%**
+| Accuracy | F1-Score | AUC-ROC |
+|:---:|:---:|:---:|
+| **85%** | **85.7%** | **95%** |
 
----
-
-##  Project Overview
-
-This is a **production-ready NLP project** that predicts whether product reviews are **positive** or **negative** using:
-- Text preprocessing and feature engineering
-- TF-IDF vectorization
-- Machine learning ensemble (Logistic Regression + XGBoost)
-- Proper handling of imbalanced data
-- Cross-validation and evaluation
-
-**Perfect for:**
-- Building a portfolio project
-- Learning NLP fundamentals
-- Understanding ML pipelines
-- Interview preparation
+*(Hold-out test set of 20 reviews — see [Results](#results).)*
 
 ---
 
-##  Quick Start
+## Table of Contents
 
-### 1. Install Dependencies
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Project Structure](#project-structure)
+- [Pipeline Details](#pipeline-details)
+- [Results](#results)
+- [Testing](#testing)
+- [Windows Encoding Notes](#windows-encoding-notes)
+- [Requirements](#requirements)
+
+---
+
+## Overview
+
+| Component | Technique |
+|---|---|
+| Text cleaning | Lowercase, strip URLs / special characters / numbers |
+| Tokenization | NLTK `punkt` |
+| Stopword removal | NLTK `stopwords` |
+| Feature engineering | TF-IDF (unigrams + bigrams) |
+| Models | Logistic Regression + XGBoost |
+| Combination | Soft-voting ensemble |
+| Validation | 5-fold cross-validation |
+| Inference | `SentimentPredictor` class |
+
+---
+
+## Quick Start
+
+### 1. Clone and install
+
+```bash
+git clone <your-repo-url>
+cd NLP-Sentiment-Analysis-S
+python -m venv venv
+```
+
+Activate the virtual environment:
+
+```powershell
+# Windows (PowerShell)
+.\venv\Scripts\Activate.ps1
+```
+
+```bash
+# Linux / macOS
+source venv/bin/activate
+```
+
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Run Complete Pipeline
+### 2. Run the full pipeline
 
 ```bash
 python main.py
 ```
 
 This will:
+
 1. Load and analyze the dataset
-2. Preprocess text (cleaning, tokenization, vectorization)
+2. Preprocess text (cleaning → tokenization → TF-IDF)
 3. Train the ensemble model
-4. Evaluate on test set
+4. Evaluate on the test set (metrics + confusion matrix)
 5. Make predictions on sample reviews
+6. Save visualizations and an analysis report
 
-### 3. Expected Output
+### 3. Output
 
-```
-======================================================================
-                   NLP SENTIMENT ANALYSIS PROJECT
-======================================================================
-
-STEP 1: DATA PREPROCESSING
-Loading data from data/reviews.csv...
-✓ Loaded 100 reviews
-
-DATA ANALYSIS
-Total reviews: 100
-Class Distribution:
-  POSITIVE: 78 reviews (78.0%)
-  NEGATIVE: 22 reviews (22.0%)
-  
-STEP 2: MODEL TRAINING
-Training ensemble...
-✓ Training complete!
-
-Cross-Validation Results (5-fold):
-  F1-Score:  0.8245 (+/- 0.0312)
-  Accuracy:  0.8150 (+/- 0.0387)
-  
-TEST SET EVALUATION
-Performance Metrics:
-  Accuracy:  0.8250 (82.50%)
-  Precision: 0.8462
-  Recall:    0.8214
-  F1-Score:  0.8336
-
-STEP 3: PREDICTION & INFERENCE
-[Predictions on sample reviews...]
-
-PIPELINE COMPLETE ✓
-```
+| Artifact | Path |
+|---|---|
+| Trained model | `models/sentiment_model.pkl` |
+| Fitted TF-IDF vectorizer | `data/preprocessor.pkl` |
+| Feature matrices | `data/X_train.pkl`, `data/X_test.pkl` |
+| Labels | `data/y_train.pkl`, `data/y_test.pkl` |
+| Plots | `results/*.png` |
+| Text report | `results/analysis_report.txt` |
 
 ---
 
-##  Project Structure
+## Project Structure
 
-```
-NLP_Project/
-├── data/                    # Data files
-│   ├── reviews.csv         # Original dataset (100 reviews)
-│   ├── X_train.pkl         # Training features (after preprocessing)
-│   ├── X_test.pkl          # Test features
-│   ├── y_train.pkl         # Training labels
-│   ├── y_test.pkl          # Test labels
-│   └── preprocessor.pkl    # Fitted TF-IDF vectorizer
+```text
+NLP-Sentiment-Analysis-S/
+├── data/
+│   ├── reviews.csv            # Dataset (96 reviews, balanced 48/48)
+│   ├── X_train.pkl, X_test.pkl
+│   ├── y_train.pkl, y_test.pkl
+│   └── preprocessor.pkl       # Fitted TF-IDF vectorizer
 │
-├── src/                     # Source code
-│   ├── preprocess.py       # Text preprocessing & feature engineering
-│   ├── train.py            # Model training & evaluation
-│   └── predict.py          # Inference on new reviews
+├── src/
+│   ├── preprocess.py          # Text cleaning + TF-IDF
+│   ├── train.py               # Model training + CV + evaluation
+│   ├── predict.py             # Inference
+│   ├── analysis.py            # Visualizations + report
+│   └── tests.py               # Unit + integration tests
 │
-├── models/                  # Trained models
-│   └── sentiment_model.pkl # Trained ensemble model
+├── models/
+│   └── sentiment_model.pkl    # Trained ensemble
 │
-├── results/                 # Output results (generated)
+├── results/                   # Generated outputs
 │
-├── main.py                 # Main pipeline runner
-├── requirements.txt        # Python dependencies
-├── README.md              # This file
-└── CV_TEMPLATE.txt        # CV description
-
+├── main.py                    # End-to-end pipeline
+├── requirements.txt
+├── .gitignore
+└── README.md
 ```
 
 ---
 
-##  Detailed Pipeline
+## Pipeline Details
 
-### 1. **Data Preprocessing** (`src/preprocess.py`)
+### 1. Data preprocessing (`src/preprocess.py`)
 
-**What it does:**
-- Loads 100 product reviews with sentiment labels (0=Negative, 1=Positive)
-- Cleans text (lowercase, remove special characters, URLs)
-- Tokenizes into words
-- Removes stopwords (common words like "the", "a", "is")
-- Converts to numerical features using TF-IDF
+| Step | Operation |
+|:---:|---|
+| 1 | Lowercase text |
+| 2 | Remove URLs, special characters, numbers |
+| 3 | Tokenize (NLTK `punkt`) |
+| 4 | Remove stopwords (NLTK `stopwords`) |
+| 5 | TF-IDF vectorization |
+| 6 | Stratified 80/20 train-test split |
 
-**Key Parameters:**
-- `max_features=100`: Keep top 100 most important words
-- `ngram_range=(1,2)`: Use single words and 2-word phrases
-- `min_df=2`: Word must appear in at least 2 documents
-- `max_df=0.8`: Word can't appear in more than 80% of documents
+**TF-IDF parameters**
 
-**Output:**
-- Feature matrix: (100 reviews, 100 features)
-- Train/test split: 80% / 20%
+| Parameter | Value | Meaning |
+|---|---|---|
+| `max_features` | 100 | Keep the top 100 terms |
+| `ngram_range` | (1, 2) | Unigrams + bigrams |
+| `min_df` | 2 | Term must appear in ≥ 2 documents |
+| `max_df` | 0.8 | Term must not appear in > 80% of documents |
 
----
+### 2. Model training (`src/train.py`)
 
-### 2. **Model Training** (`src/train.py`)
+| Model | Role | Why |
+|---|---|---|
+| Logistic Regression | Linear baseline | Fast, interpretable |
+| XGBoost | Non-linear classifier | Captures more complex patterns |
+| Soft-voting ensemble | Combines both | Averages predicted probabilities |
 
-**Ensemble Components:**
+**Validation and persistence**
 
-| Model | Purpose | Why Used |
-|-------|---------|----------|
-| **Logistic Regression** | Baseline classifier | Fast, interpretable, good for linear patterns |
-| **XGBoost** | Advanced classifier | Captures non-linear patterns, handles imbalance |
-| **Voting Ensemble** | Combines both | Average probabilities for robust predictions |
+| Item | Detail |
+|---|---|
+| Cross-validation | 5-fold |
+| Metrics | Accuracy, Precision, Recall, F1, AUC-ROC |
+| Serialization | `pickle` for model and preprocessor |
 
-**Handling Imbalanced Data:**
-- Problem: 78% positive, 22% negative (imbalanced)
-- Solution: Class-weighted loss (penalizes minority class misclassification)
-
-**Evaluation:**
-- 5-fold cross-validation for reliable performance estimates
-- Test set evaluation with multiple metrics
-
----
-
-### 3. **Evaluation Metrics**
-
-```
-Performance Metrics:
-  Accuracy:  82.50%  (Overall correctness)
-  Precision: 84.62%  (Of predicted positive, how many are actually positive)
-  Recall:    82.14%  (Of actual positive, how many did we catch)
-  F1-Score:  83.36%  (Harmonic mean of precision & recall)
-  AUC-ROC:   0.9123  (Overall model performance)
-```
-
-**Why F1-Score matters:**
-- For imbalanced data, accuracy is misleading
-- F1-Score balances precision and recall
-- Better metric for this problem
-
----
-
-### 4. **Prediction** (`src/predict.py`)
-
-Use the trained model to predict sentiment on new reviews:
+### 3. Inference (`src/predict.py`)
 
 ```python
 from src.predict import SentimentPredictor
 
 predictor = SentimentPredictor(
-    model_path='models/sentiment_model.pkl',
-    preprocessor_path='data/preprocessor.pkl'
+    model_path="models/sentiment_model.pkl",
+    preprocessor_path="data/preprocessor.pkl",
 )
 
-# Single prediction
+# Single review
 result = predictor.predict_single("This product is amazing!")
 print(result)
-# Output: {'sentiment': 'Positive ✓', 'confidence': 0.94, ...}
+# {'sentiment': 'Positive ✓', 'confidence': 0.74, 'probabilities': {...}}
 
-# Batch predictions
+# Batch
 results = predictor.predict_batch(["Great!", "Terrible!"])
 ```
 
 ---
 
-##  Results
+## Results
 
-### Cross-Validation (5-fold)
-```
-F1-Score:  0.8245 (+/- 0.0312)
-Accuracy:  0.8150 (+/- 0.0387)
-Precision: 0.8312 (+/- 0.0298)
-Recall:    0.8154 (+/- 0.0425)
+### Cross-validation (5-fold)
+
+| Metric | Mean | Std |
+|---|:---:|:---:|
+| F1-Score | 0.7973 | ± 0.1091 |
+| Accuracy | 0.8283 | ± 0.0547 |
+| Precision | 0.8556 | ± 0.1975 |
+| Recall | 0.7845 | ± 0.1268 |
+
+### Test set
+
+| Metric | Value |
+|---|:---:|
+| Accuracy | 0.8500 |
+| Precision | 0.8182 |
+| Recall | 0.9000 |
+| F1-Score | 0.8571 |
+| AUC-ROC | 0.9500 |
+
+### Confusion matrix
+
+| | Predicted Negative | Predicted Positive |
+|---|:---:|:---:|
+| **Actual Negative** | 8 (TN) | 2 (FP) |
+| **Actual Positive** | 1 (FN) | 9 (TP) |
+
+| Summary | Value |
+|---|:---:|
+| Correct | 17 / 20 |
+| Incorrect | 3 / 20 |
+| Error rate | 15.00% |
+| False positives | 2 |
+| False negatives | 1 |
+
+> **Note:** The dataset is small (96 reviews), so the test set has only 20 samples — a single
+> misclassified review changes accuracy by 5 points. Cross-validation scores vary noticeably between
+> folds (see the standard deviations above). Treat these numbers as indicative rather than a benchmark.
+
+### Figures
+
+Generated by the pipeline in `results/`:
+
+| Confusion matrix | ROC curve |
+|:---:|:---:|
+| ![Confusion matrix](./results/confusion_matrix.png) | ![ROC curve](./results/roc_curve.png) |
+
+| Test metrics | Cross-validation |
+|:---:|:---:|
+| ![Metrics](./results/metrics_comparison.png) | ![Cross-validation](./results/cv_results.png) |
+
+| Probability distribution | Feature importance |
+|:---:|:---:|
+| ![Probabilities](./results/prediction_distribution.png) | ![Feature importance](./results/feature_importance.png) |
+
+---
+
+## Testing
+
+```bash
+python src/tests.py
 ```
 
-### Test Set
-```
-F1-Score:  0.8336
-Accuracy:  0.8250
-Precision: 0.8462
-Recall:    0.8214
-AUC-ROC:   0.9123
+Runs 17 unit and integration tests:
+
+| Area | Tests |
+|---|:---:|
+| Data loading | 1 |
+| Preprocessing (clean text, empty/`None` input, numbers, special chars) | 6 |
+| Vectorizer (fit, transform, not-fitted error) | 3 |
+| Model (init, build ensemble, train, predict, `predict_proba`, save/load) | 6 |
+| Integration (preprocess → train) | 1 |
+
+Expected result: `OK`.
+
+---
+
+## Windows Encoding Notes
+
+If you see:
+
+```text
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2713'
 ```
 
-### Confusion Matrix
+the Windows console is using a legacy code page (e.g. cp1251) instead of UTF-8.
+
+**Option A — quick fix (per session):**
+
+```powershell
+chcp 65001
+$env:PYTHONUTF8="1"
+python main.py
 ```
-                Predicted
-              Negative  Positive
-Actual Negative    13         2     (13 correct, 2 false positives)
-       Positive     4        16     (16 correct, 4 false negatives)
+
+**Option B — built in:** `main.py` already wraps `sys.stdout` / `sys.stderr` in a UTF-8 `TextIOWrapper` on Windows, so `✓`, `✗` and `→` render correctly as long as the console code page is UTF-8.
+
+> ⚠️ **Avoid PowerShell's `Tee-Object`.** It decodes output using the legacy code page and garbles Unicode.
+> To save a log, redirect instead:
+>
+> ```powershell
+> python main.py > results/run_log.txt
+> ```
+
+---
+
+## Requirements
+
+| Requirement | Version |
+|---|---|
+| Python | 3.10+ |
+| scikit-learn | see `requirements.txt` |
+| xgboost | see `requirements.txt` |
+| pandas, numpy | see `requirements.txt` |
+| matplotlib, seaborn | see `requirements.txt` |
+| nltk | see `requirements.txt` |
+
+Install everything:
+
+```bash
+pip install -r requirements.txt
 ```
 
 ---
 
+## License
 
-##  License
-
-This project is open source and available under the MIT License.
-
-
-
-For questions or improvements, feel free to modify and experiment with the code.
+MIT
