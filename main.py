@@ -57,6 +57,15 @@ def main():
     # Run prediction demo
     run_prediction_demo()
     
+    generate_all_visualizations(
+        model.model,
+        model.history,
+        model.history['y_test'],
+        model.history['y_pred'],
+        model.history['y_pred_proba'],
+        preprocessor,
+    )
+
     # Step 4: Summary
     print_header("PIPELINE COMPLETE")
     

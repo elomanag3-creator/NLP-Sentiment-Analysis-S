@@ -119,7 +119,7 @@ class TestSentimentModel(unittest.TestCase):
         self.model.build_ensemble()
         
         self.assertIsNotNone(self.model.model)
-        self.assertEqual(len(self.model.model.estimators_), 2)
+        self.assertEqual(len(self.model.model.named_estimators), 2)
     
     def test_model_training(self):
         """Test model training"""
